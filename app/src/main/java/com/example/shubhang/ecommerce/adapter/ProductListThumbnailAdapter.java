@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.shubhang.ecommerce.R;
 import com.example.shubhang.ecommerce.model.products;
@@ -31,7 +32,6 @@ public class ProductListThumbnailAdapter extends RecyclerView.Adapter<ProductLis
         CustomViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
-
             inStock = mView.findViewById(R.id.inStock);
             price = mView.findViewById(R.id.price);
             txtTitle = mView.findViewById(R.id.title);
@@ -48,11 +48,16 @@ public class ProductListThumbnailAdapter extends RecyclerView.Adapter<ProductLis
 
     @Override
     public void onBindViewHolder(CustomViewHolder holder, int position) {
-        products p  = dataList.get(position);
-        holder.inStock.setText(p.isIn_stock() ? "IN STOCK" : "NOT IN STOCK");
-        holder.price.setText(p.getCurrency()+String. valueOf(p.getPrice()));
-        holder.txtTitle.setText(p.getName().replaceAll("[|?*<\":>+\\[\\]/']", ""));
-        Picasso.get().load(p.getImages().get(0)).into(holder.coverImage);
+       try {
+           products p = dataList.get(position);
+           holder.inStock.setText(p.isIn_stock() ? "IN STOCK" : "NOT IN STOCK");
+           holder.price.setText(p.getCurrency() + String.valueOf(p.getPrice()));
+           holder.txtTitle.setText(p.getName());
+           Picasso.get().load(p.getImages().get(0)).into(holder.coverImage);
+       }
+       catch (Exception e){
+
+       }
     }
     @Override
     public int getItemCount() {

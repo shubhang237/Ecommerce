@@ -44,7 +44,7 @@ public class products {
     }
 
     public double getPrice() {
-        return price;
+        return Math.round(price*1000)/1000;
     }
 
     public String getCurrency() {

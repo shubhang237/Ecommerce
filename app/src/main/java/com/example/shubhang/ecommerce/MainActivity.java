@@ -1,10 +1,12 @@
 package com.example.shubhang.ecommerce;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -28,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -43,6 +46,10 @@ import com.google.android.gms.tasks.Task;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -50,28 +57,17 @@ public class MainActivity extends AppCompatActivity
     private ProductListThumbnailAdapter adapter;
     private RecyclerView recyclerView;
     ProgressDialog progressDialog;
-    EditText searchItem;
     List<products> pList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getPermissions();
         setupView();
-        final ImageButton btn = findViewById(R.id.btnClick);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressDialog = new ProgressDialog(MainActivity.this);
-                progressDialog.setMessage("Loading....");
-                progressDialog.show();
-                getAns();
-                InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(btn.getWindowToken(), 0);
-            }
-        });
-        searchItem = findViewById(R.id.productName);
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setMessage("Fetching Products for you ....");
+        progressDialog.show();
+        getAns();
     }
 
     private void addListeners() {
@@ -88,6 +84,7 @@ public class MainActivity extends AppCompatActivity
                 intent.putExtra("Price",p.getPrice());
                 intent.putExtra("Images",p.getImages());
                 intent.putExtra("Currency",p.getCurrency());
+                intent.putExtra("inStock",p.isIn_stock());
                 startActivity(intent);
             }
 
@@ -99,27 +96,45 @@ public class MainActivity extends AppCompatActivity
         }));
     }
 
+    @SuppressLint("StaticFieldLeak")
     public void getAns(){
 
-        new AsyncTask<String,Void,String>(){
+        Log.d("Execute Query","Happening");
+        AsyncTask<String, Void, String> execute = new AsyncTask<String, Void, String>() {
             @Override
             protected String doInBackground(String... strings) {
                 GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
-                String token="415e4908-fa3f-4a27-91ac-908bf40f2654";
-                retrofit2.Call<ProductList> call = service.getProducts(token,"json",searchItem.getText().toString());
-                call.enqueue(new retrofit2.Callback<ProductList>() {
+                String token = "415e4908-fa3f-4a27-91ac-908bf40f2654";
+
+                SharedPreferences sPref = getSharedPreferences("myFilters", Context.MODE_PRIVATE);
+                String category = sPref.getString("category", "");
+                String price = sPref.getString("price", "");
+                String brand = sPref.getString("brand","");
+                String name = sPref.getString("name","");
+                category = category == "" ? "" : " category:" + category + " ";
+                price = price == "" ? "" : " price:" + price + " ";
+                brand = brand == "" ? "" : " brand:" + brand + " ";
+                name = name == "" ? "" : " name:"+name+" ";
+                String Query = name+category+brand+price;
+                Log.e("QueryString", Query);
+                Call<ProductList> call = service.getProducts(token, "json", Query);
+                call.enqueue(new Callback<ProductList>() {
 
                     @Override
-                    public void onResponse(retrofit2.Call<ProductList> call, retrofit2.Response<ProductList> response) {
-                        progressDialog.dismiss();
-                        pList = response.body().products;
-                        generateDataList(pList);
+                    public void onResponse(Call<ProductList> call, Response<ProductList> response) {
+                       progressDialog.dismiss();
+                        try {
+                            pList = response.body().products;
+                            generateDataList(pList);
+                        } catch (Exception e) {
+                            Toast.makeText(MainActivity.this, "Could Not Fetch Data", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     @Override
-                    public void onFailure(retrofit2.Call<ProductList> call, Throwable t) {
+                    public void onFailure(Call<ProductList> call, Throwable t) {
                         progressDialog.dismiss();
-                        Log.e("TAG1",t.toString());
+                        Log.e("TAG1", t.toString());
                         Toast.makeText(MainActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -136,15 +151,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -153,7 +159,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
     }
 
 
@@ -186,22 +191,7 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
 
-        if(id == R.id.action_logout){
-            AuthUI.getInstance()
-                    .signOut(this)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        public void onComplete(@NonNull Task<Void> task) {
-                            // user is now signed out
-                            startActivity(new Intent(MainActivity.this, SignInActivity.class));
-                            finish();
-                        }
-                    });
-            return true;
-        }
 
-        if(id == R.id.action_filter){
-
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -212,15 +202,11 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_outlook) {
+        if (id == R.id.nav_filter) {
+           Intent filter_intent = new Intent(MainActivity.this,FilterActivity.class);
+           startActivity(filter_intent);
+        }
+        else if (id == R.id.nav_outlook) {
             mailTo("skssinghal@outlook.com");
         } else if (id == R.id.nav_fb) {
             Intent facebookIntent = new Intent(Intent.ACTION_VIEW);
@@ -233,6 +219,18 @@ public class MainActivity extends AppCompatActivity
         }
         else if(id == R.id.nav_instagram){
 
+        }
+        else if(id == R.id.action_logout){
+            AuthUI.getInstance()
+                    .signOut(this)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        public void onComplete(@NonNull Task<Void> task) {
+                            // user is now signed out
+                            startActivity(new Intent(MainActivity.this, FilterActivity.class));
+                            finish();
+                        }
+                    });
+            return true;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -332,22 +330,5 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void getPermissions(){
-        int perm1 = ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.READ_CONTACTS);
-        int perm2 = ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.WRITE_CONTACTS);
-        int perm3 = ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.SEND_SMS);
-        if (perm3 == PackageManager.PERMISSION_GRANTED && (perm1 == PackageManager.PERMISSION_GRANTED
-                || perm2 == PackageManager.PERMISSION_GRANTED)) {
-        } else {
-            ActivityCompat.requestPermissions(
-                    MainActivity.this,
-                    new String[] {
-                            android.Manifest.permission.READ_CONTACTS,
-                            android.Manifest.permission.WRITE_CONTACTS,
-                            Manifest.permission.SEND_SMS
-                    },
-                    121
-            );
-        }
-    }
+
 }

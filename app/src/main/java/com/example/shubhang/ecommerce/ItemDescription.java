@@ -39,9 +39,10 @@ public class ItemDescription extends AppCompatActivity {
         Intent i = getIntent();
         String brand = i.getStringExtra("Brand");
         String name = i.getStringExtra("Name");
-        String desc = i.getStringExtra("Description");
-        Double price = i.getDoubleExtra("Price",0.00);
+        String desc = i.getStringExtra("Description").replaceAll("[|?*<\":>+\\[\\]/']", "");
+        double price = i.getDoubleExtra("Price",0);
         String Currency = i.getStringExtra("Currency");
+        boolean inStock = i.getBooleanExtra("inStock",false);
         ArrayList<String> images = i.getStringArrayListExtra("Images");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(brand.toUpperCase());
@@ -50,6 +51,10 @@ public class ItemDescription extends AppCompatActivity {
         pName.setText(name);
         pDesc.setText(desc);
         pPrice.setText(Currency + price);
+        if(!inStock){
+            placeOrder.setVisibility(View.INVISIBLE);
+        }
+        else
         placeOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

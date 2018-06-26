@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Ecommerce</string>
+    <string name="app_name">Big Bazaar</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Electro-Comp Total Services</string>
@@ -24,4 +24,80 @@
     </string>
     <string name="action_logout">Logout</string>
     <string name="action_filter">Filter</string>
+    <string name="choose_category">Choose a Category</string>
+    <string name="enter_brand_name">Enter Brand Name</string>
+    <string name="enter_price_range">Slide to chose max price</string>
+    <string name="enter_offer_price_range">Enter Offer Price</string>
+    <string name="save_settings">Search Products</string>
+    <string name="enter_item_name">Enter Item Name</string>
+    <string name="search_filters">Search Filters</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="outlook">Outlook</string>
+    <string name="gmail">Gmail</string>
+    <string name="facebook">Facebook</string>
+    <string name="instagram">Instagram</string>
+    <string name="place_order">Place Order</string>
+
+    <string-array name="categories">
+       <item>acne-blemish-treatments</item>
+        <item>anti-aging-products</item>
+        <item>baby</item>
+        <item>books</item>
+        <item>business-industrial</item>
+        <item>camera</item>
+        <item>cars</item>
+        <item>cases-covers-skins</item>
+        <item>cell-phones-accessories</item>
+        <item>cell-phones-smartphones</item>
+        <item>clothing-shoes-accessories</item>
+        <item>computers-tablets-networking</item>
+        <item>computers</item>
+        <item>crafts</item>
+        <item>desktops-all-in-ones</item>
+        <item>dresses</item>
+        <item>electronics</item>
+        <item>fashion</item>
+        <item>fragrances</item>
+        <item> health-beauty</item>
+        <item>home-garden</item>
+        <item>jewelry</item>
+        <item>laptops-netbooks</item>
+        <item>lenses</item>
+        <item>moisturizers</item>
+        <item>music</item>
+        <item>pc-desktops-all-in-ones</item>
+        <item>pc-laptops-netbooks</item>
+        <item>pet-supplies</item>
+        <item>phone</item>
+        <item>skin-care</item>
+        <item>sport</item>
+        <item>tops-blouses</item>
+        <item>toys-hobbies</item>
+        <item>travel</item>
+        <item>video-games</item>
+        <item>womens-clothing</item>
+        <item>womens-fragrances</item>
+    </string-array>
+
+    <string name="title_activity_welcome">Home Screen</string>
+    <string name="next">NEXT</string>
+    <string name="skip">SKIP</string>
+    <string name="start">GOT IT</string>
+
+    <string name="slide_1_title">Big Bazaar</string>
+    <string name="slide_1_desc">The easiest way to get all your shopping done!</string>
+
+    <string name="slide_2_title">Greatest Variety</string>
+    <string name="slide_2_desc">Get All Kinds of Products!</string>
+
+    <string name="slide_3_title">Super Convenient</string>
+    <string name="slide_3_desc">With a large variety of options!</string>
+
+    <string name="slide_4_title">Track your Delivery</string>
+    <string name="slide_4_desc">Without any Hastle!</string>
+
+    <string name="play_again_desc">To see the welcome slider again, goto Settings -> apps -> welcome slider -> clear data</string>
+    <string name="play_again">Play Again</string>
+    <string name="big_bazaar">Big Bazaar</string>
+
 </resources>
